@@ -19,6 +19,7 @@ public class MoveFiles {
             out.write(data);
             out.flush();
             out.close();
+            if(i%100==0) System.out.println("finished 100 files until "+i);
         }
     }
 }
