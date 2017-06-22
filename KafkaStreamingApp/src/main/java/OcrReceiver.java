@@ -10,16 +10,17 @@ import org.apache.spark.streaming.api.java.JavaPairReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.kafka.KafkaUtils;
 
-
 public class OcrReceiver {
 
     public static void main(String[] args) throws Exception {
-        int batchInterval=5000;
+        int batchInterval=1000;
 
-        if (args.length < 4) {
-            System.err.println("args: <zkQuorum> <group> <topics> <numThreads>");
+        if (args.length != 5) {
+            System.err.println("args: <zkQuorum> <group> <topics> <numThreads> <mode>");
             System.exit(1);
         }
+
+        String mode=args[4];
 
         SparkConf sparkConf = new SparkConf().setAppName("OcrStreamingApp");
         JavaStreamingContext jssc = new JavaStreamingContext(sparkConf,
@@ -39,13 +40,14 @@ public class OcrReceiver {
                 new Function<Tuple2<String, String>, String>() {
             @Override
             public String call(Tuple2<String, String> tuple2) throws Exception {
-                String imgFilename=tuple2._1();
-                if(imgFilename==null || imgFilename.equals("")) return "Invalid image path";
-                String imgName=OcrReceiverUtils.getImgName(imgFilename);
-                String imgPath=OcrReceiverUtils.TMP_IMG_PATH+imgName;
+                String keyStr=tuple2._1();
+                String[] keyElem=keyStr.split(" ");
+                String imgFilename = keyElem[0];
+                String timestamp=keyElem[1];
+                String imgPath=OcrReceiverUtils.getTmpImgPath(imgFilename,mode);
                 String imgStr=tuple2._2();
                 OcrReceiverUtils.generateImg(imgStr,imgPath);
-                return OcrReceiverUtils.ocrProcessAndWriteLocal(imgPath);
+                return OcrReceiverUtils.ocrProcessAndWriteLocal(imgPath,mode,timestamp);
             }
         });
 
