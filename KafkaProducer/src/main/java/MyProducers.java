@@ -41,6 +41,7 @@ public class MyProducers implements Runnable {
     private final String IMG_PATH_PHY_PREFIX="/mnt/DP_disk";
     private final String IMG_PATH_PHY_SUFFIX="/jiacheng/testdata/";
     private final int DISK_NUM=7;
+    private final int SLEEP_TIME_MS=1000;
 
     public MyProducers(String brokers,String topic,int offset,int num,String mode){
         this.brokers=brokers;
@@ -59,14 +60,22 @@ public class MyProducers implements Runnable {
         Producer<String, String> producer = new KafkaProducer<>(props);
 
         try{
+            long t0=System.currentTimeMillis();
+            int producerId=(offset-1)/num;
             for(int i = offset; i < offset+num; i++){
                 String imgFilename=getImgFilename(i);
-                String keyStr="NAME: " + imgFilename+" TIMESTAMP: "+System.currentTimeMillis();
-                System.out.println(keyStr);
+                long t1=System.currentTimeMillis();
+                String keyStr=imgFilename+" "+t1;
                 String imgStr=getImgStr(i);
                 producer.send(new ProducerRecord<>(topic, keyStr, imgStr));
-                Thread.sleep(1000);
+                long t2=System.currentTimeMillis();
+                long delta=t2-t1;
+                System.out.println("PRODUCER "+producerId+" SENT "+imgFilename+" IN "+delta+"ms");
+                Thread.sleep(SLEEP_TIME_MS);
             }
+            long t4=System.currentTimeMillis();
+            long deltaTotal=t4-t0-SLEEP_TIME_MS*num;
+            System.out.println("PRODUCER "+producerId+" SENT "+num+" IMGS IN "+deltaTotal+"ms");
         }catch (Exception e){
             e.printStackTrace();
         }
