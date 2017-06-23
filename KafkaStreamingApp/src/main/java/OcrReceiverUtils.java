@@ -10,9 +10,10 @@ public class OcrReceiverUtils {
 
     public static String getTmpImgPath(String imgFilename,String mode){
         if(mode.equalsIgnoreCase("VM"))
-            return TMP_IMG_PATH+imgFilename;
+            return "/home/centos/tmp-ocr/img/"+imgFilename;
         else if(mode.equalsIgnoreCase("PHY")){
-            return TMP_IMG_PATH_PHY+imgFilename;
+            int diskId=getDiskId(imgFilename);
+            return "/mnt/DP_disk"+diskId+"/jiacheng/tmp-ocr/img/"+imgFilename;
         }else{
             System.err.println("mode must be VM or PHY");
             System.exit(1);
@@ -20,11 +21,18 @@ public class OcrReceiverUtils {
         }
     }
 
-    public static String getOutputDir(String mode){
+    private static int getDiskId(String imgFilename){
+        String imgIdStr=imgFilename.substring(12,imgFilename.length()-4);
+        int imgId=Integer.parseInt(imgIdStr);
+        return imgId%7+1;
+    }
+
+    public static String getOutputDir(String imgFilename,String mode){
         if(mode.equalsIgnoreCase("VM"))
-            return OUTPUT_DIR;
+            return "/home/centos/tmp-ocr/output/output.txt";
         else if(mode.equalsIgnoreCase("PHY")){
-            return OUTPUT_DIR_PHY;
+            int diskId=getDiskId(imgFilename);
+            return "/mnt/DP_disk"+diskId+"/jiacheng/tmp-ocr/output.txt";
         }else{
             System.err.println("mode must be VM or PHY");
             System.exit(1);
@@ -79,14 +87,15 @@ public class OcrReceiverUtils {
         }
     }
 
-    public static String ocrProcessAndWriteLocal(String imgPath,String mode,String timestamp){
+    public static String ocrProcessAndWriteLocal(String imgFilename,
+                                                 String imgPath,String mode,String timestamp){
         try{
             String output=ocrProcess(imgPath);
             long t=System.currentTimeMillis();
             long t0=Long.parseLong(timestamp);
             long delta=t-t0;
             output+=imgPath+": finish in "+delta+"ms\n";
-            String outputPath=getOutputDir(mode);
+            String outputPath=getOutputDir(imgFilename,mode);
             File f = new File(outputPath);
             if (!f.exists()) f.createNewFile();
             FileWriter fw = new FileWriter(f, true);
@@ -103,7 +112,4 @@ public class OcrReceiverUtils {
 
 
     public static final String TMP_IMG_PATH="/home/centos/tmp-ocr/img/";
-    public static final String OUTPUT_DIR="/home/centos/tmp-ocr/output/output.txt";
-    public static final String TMP_IMG_PATH_PHY="/home/jiacheng/tmp-ocr/img/";
-    public static final String OUTPUT_DIR_PHY="/home/jiacheng/tmp-ocr/output/output.txt";
 }

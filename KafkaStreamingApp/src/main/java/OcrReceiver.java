@@ -47,7 +47,7 @@ public class OcrReceiver {
                 String imgPath=OcrReceiverUtils.getTmpImgPath(imgFilename,mode);
                 String imgStr=tuple2._2();
                 OcrReceiverUtils.generateImg(imgStr,imgPath);
-                return OcrReceiverUtils.ocrProcessAndWriteLocal(imgPath,mode,timestamp);
+                return OcrReceiverUtils.ocrProcessAndWriteLocal(imgFilename,imgPath,mode,timestamp);
             }
         });
 
