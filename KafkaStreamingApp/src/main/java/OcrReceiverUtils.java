@@ -13,7 +13,7 @@ public class OcrReceiverUtils {
             return "/home/centos/tmp-ocr/img/"+imgFilename;
         else if(mode.equalsIgnoreCase("PHY")){
             int diskId=getDiskId(imgFilename);
-            return "/mnt/DP_disk"+diskId+"/jiacheng/tmp-ocr/img/"+imgFilename;
+            return "/mnt/DP_disk"+diskId+"/jiacheng/ocr-tmp/img/"+imgFilename;
         }else{
             System.err.println("mode must be VM or PHY");
             System.exit(1);
@@ -32,7 +32,7 @@ public class OcrReceiverUtils {
             return "/home/centos/tmp-ocr/output/output.txt";
         else if(mode.equalsIgnoreCase("PHY")){
             int diskId=getDiskId(imgFilename);
-            return "/mnt/DP_disk"+diskId+"/jiacheng/tmp-ocr/output.txt";
+            return "/mnt/DP_disk"+diskId+"/jiacheng/ocr-tmp/output.txt";
         }else{
             System.err.println("mode must be VM or PHY");
             System.exit(1);
