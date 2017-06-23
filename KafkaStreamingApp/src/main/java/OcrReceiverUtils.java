@@ -83,7 +83,7 @@ public class OcrReceiverUtils {
             return output;
         }catch (Exception e){
             e.printStackTrace();
-            return "OCR ERROR!";
+            return "OCR ERROR!"+imgPath;
         }
     }
 
