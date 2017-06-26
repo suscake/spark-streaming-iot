@@ -89,10 +89,10 @@ public class MyProducers implements Runnable {
 
     private String getImgPath(int id){
         String imgFilename=getImgFilename(id);
-        if(mode.equalsIgnoreCase("VM")) {
+        if(mode.equals("VM")) {
             return IMG_PATH_VM+imgFilename;
         }
-        else if(mode.equalsIgnoreCase("PHY")){
+        else if(mode.equals("PHY")){
             int diskId=id%DISK_NUM+1;
             return IMG_PATH_PHY_PREFIX+diskId+IMG_PATH_PHY_SUFFIX+imgFilename;
         }else{
