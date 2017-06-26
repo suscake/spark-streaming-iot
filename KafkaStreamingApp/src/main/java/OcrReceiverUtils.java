@@ -9,9 +9,9 @@ public class OcrReceiverUtils {
     }
 
     public static String getTmpImgPath(String imgFilename,String mode){
-        if(mode.equalsIgnoreCase("VM"))
+        if(mode.equals("VM"))
             return "/home/centos/tmp-ocr/img/"+imgFilename;
-        else if(mode.equalsIgnoreCase("PHY")){
+        else if(mode.equals("PHY")){
             int diskId=getDiskId(imgFilename);
             return "/mnt/DP_disk"+diskId+"/jiacheng/ocr-tmp/img/"+imgFilename;
         }else{
@@ -28,9 +28,9 @@ public class OcrReceiverUtils {
     }
 
     public static String getOutputDir(String imgFilename,String mode){
-        if(mode.equalsIgnoreCase("VM"))
+        if(mode.equals("VM"))
             return "/home/centos/tmp-ocr/output/output.txt";
-        else if(mode.equalsIgnoreCase("PHY")){
+        else if(mode.equals("PHY")){
             int diskId=getDiskId(imgFilename);
             return "/mnt/DP_disk"+diskId+"/jiacheng/ocr-tmp/output.txt";
         }else{

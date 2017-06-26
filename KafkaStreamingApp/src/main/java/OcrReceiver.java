@@ -22,7 +22,8 @@ public class OcrReceiver {
 
         String mode=args[4];
 
-        SparkConf sparkConf = new SparkConf().setAppName("OcrStreamingApp");
+        SparkConf sparkConf = new SparkConf().setAppName("OcrStreamingApp")
+                .set("spark.streaming.blockInterval","50");
         JavaStreamingContext jssc = new JavaStreamingContext(sparkConf,
                 new Duration(batchInterval));
 
