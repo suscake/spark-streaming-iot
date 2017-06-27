@@ -1,5 +1,5 @@
 import java.io.*;
-
+import kafka.serializer.DefaultDecoder;
 import kafka.serializer.StringDecoder;
 import org.apache.commons.codec.binary.Base64;
 
@@ -52,6 +52,19 @@ public abstract class ImgReceiver implements Serializable{
             byte[] b=Base64.decodeBase64(imgStr);
             OutputStream out =new FileOutputStream(getTmpImgPath(imgFilename));
             out.write(b);
+            out.flush();
+            out.close();
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean generateImgFromBytes(byte[] imgBytes,String imgFilename){
+        try{
+            OutputStream out =new FileOutputStream(getTmpImgPath(imgFilename));
+            out.write(imgBytes);
             out.flush();
             out.close();
             return true;
@@ -171,6 +184,52 @@ public abstract class ImgReceiver implements Serializable{
                         long tReceive=System.currentTimeMillis();
                         timestampList.add(tReceive);
                         generateImg(imgStr,imgFilename);
+                        long tSaveImg=System.currentTimeMillis();
+                        timestampList.add(tSaveImg);
+                        return ocrProcessAndWriteLocal(imgFilename,timestampList);
+                    }
+                });
+
+        ocrOutput.print();
+
+        jssc.start();
+        jssc.awaitTermination();
+    }
+
+    public void startDirectReceiverInBytes() throws Exception{
+        SparkConf sparkConf = new SparkConf().setAppName("OcrStreamingApp")
+                .set("spark.streaming.blockInterval","50");
+        JavaStreamingContext jssc = new JavaStreamingContext(sparkConf, Durations.seconds(1));
+
+        Set<String> topicsSet = new HashSet<>(Arrays.asList(topics.split(",")));
+        Map<String, String> kafkaParams = new HashMap<>();
+        kafkaParams.put("metadata.broker.list", brokers);
+
+        // Create direct kafka stream with brokers and topics
+        JavaPairInputDStream<String, byte[]> messages = KafkaUtils.createDirectStream(
+                jssc,
+                String.class,
+                byte[].class,
+                StringDecoder.class,
+                DefaultDecoder.class,
+                kafkaParams,
+                topicsSet
+        );
+
+        JavaDStream<String> ocrOutput = messages.map(
+                new Function<Tuple2<String, byte[]>, String>() {
+                    @Override
+                    public String call(Tuple2<String, byte[]> tuple2) throws Exception {
+                        String keyStr=tuple2._1();
+                        String[] keyElem=keyStr.split(" ");
+                        String imgFilename = keyElem[0];
+                        String tSend=keyElem[1];
+                        byte[] imgBytes=tuple2._2();
+                        List<Long> timestampList=new ArrayList<>();
+                        timestampList.add(Long.parseLong(tSend));
+                        long tReceive=System.currentTimeMillis();
+                        timestampList.add(tReceive);
+                        generateImgFromBytes(imgBytes,imgFilename);
                         long tSaveImg=System.currentTimeMillis();
                         timestampList.add(tSaveImg);
                         return ocrProcessAndWriteLocal(imgFilename,timestampList);

@@ -19,7 +19,8 @@ public class ImgReceiverVM extends ImgReceiver {
         }
 
         ImgReceiverVM receiverVM=new ImgReceiverVM(args[0],args[1]);
-        receiverVM.startDirectReceiver();
+        //receiverVM.startDirectReceiver();
+        receiverVM.startDirectReceiverInBytes();
 
     }
 

@@ -18,7 +18,8 @@ public class ImgReceiverPHY extends ImgReceiver {
         }
 
         ImgReceiverPHY receiverPHY=new ImgReceiverPHY(args[0],args[1]);
-        receiverPHY.startDirectReceiver();
+        //receiverPHY.startDirectReceiver();
+        receiverPHY.startDirectReceiverInBytes();
     }
 
     public ImgReceiverPHY(String zkQuorum,String group,String topics,String numThreads){
