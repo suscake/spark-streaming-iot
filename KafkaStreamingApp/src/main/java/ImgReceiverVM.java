@@ -26,7 +26,7 @@ public class ImgReceiverVM extends ImgReceiver {
 
     @Override
     public String getLogPath(){
-        return "/home/centos/tmp-ocr/log.txt";
+        return "/home/centos/tmp-ocr/log"+logTimestamp+".txt";
     }
 
 }

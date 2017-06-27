@@ -7,7 +7,7 @@ public class Calc {
         String pattern="receive in \\d+ms";
         Pattern r=Pattern.compile(pattern);
         Matcher matcher;
-        String logFilename="/home/jiacheng/tmp-ocr/log.txt";
+        String logFilename="/home/jiacheng/tmp-ocr/"+args[0];
         File f=new File(logFilename);
         InputStreamReader isr=new InputStreamReader(new FileInputStream(f));
         BufferedReader buf=new BufferedReader(isr);

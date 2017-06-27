@@ -19,12 +19,14 @@ public abstract class ImgReceiver implements Serializable{
     private String group;
     private String topics;
     private String numThreads;
+    public long logTimestamp;
 
     public ImgReceiver(String zkQuorum,String group,String topics,String numThreads){
         this.zkQuorum=zkQuorum;
         this.group=group;
         this.topics=topics;
         this.numThreads=numThreads;
+        this.logTimestamp=System.currentTimeMillis();
     }
 
     public abstract String getTmpImgPath(String imgFilename);
@@ -74,9 +76,6 @@ public abstract class ImgReceiver implements Serializable{
             if (!f.exists()) f.createNewFile();
             FileWriter fw = new FileWriter(f, true);
             fw.write(output);
-            long tWriteLog=System.currentTimeMillis();
-            output+="write log in "+(tWriteLog-tOcr)+"ms\n";
-            fw.write("write log in "+(tWriteLog-tOcr)+"ms\n");
             fw.flush();
             fw.close();
             return output;

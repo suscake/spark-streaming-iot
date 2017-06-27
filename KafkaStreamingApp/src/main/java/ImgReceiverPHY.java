@@ -25,6 +25,6 @@ public class ImgReceiverPHY extends ImgReceiver {
 
     @Override
     public String getLogPath(){
-        return "/home/jiacheng/tmp-ocr/log.txt";
+        return "/home/jiacheng/tmp-ocr/log"+logTimestamp+".txt";
     }
 }
