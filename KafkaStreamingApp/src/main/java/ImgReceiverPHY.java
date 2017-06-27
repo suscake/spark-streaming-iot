@@ -15,19 +15,16 @@ public class ImgReceiverPHY extends ImgReceiver {
 
     @Override
     public String getTmpImgPath(String imgFilename){
-        int diskId=getDiskId(imgFilename);
-        return "/mnt/DP_disk"+diskId+"/jiacheng/ocr-tmp/img/"+imgFilename;
+        return "/home/jiacheng/tmp-ocr/img/"+imgFilename;
     }
 
     @Override
     public String getOutputDir(String imgFilename){
-        int diskId=getDiskId(imgFilename);
-        return "/mnt/DP_disk"+diskId+"/jiacheng/ocr-tmp/output.txt";
+        return "/home/jiacheng/tmp-ocr/output/"+imgFilename.substring(0,imgFilename.length()-4)+".txt";
     }
 
-    private int getDiskId(String imgFilename){
-        String imgIdStr=imgFilename.substring(12,imgFilename.length()-4);
-        int imgId=Integer.parseInt(imgIdStr);
-        return imgId%7+1;
+    @Override
+    public String getLogPath(){
+        return "/home/jiacheng/tmp-ocr/log.txt";
     }
 }

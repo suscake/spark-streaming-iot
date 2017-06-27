@@ -29,15 +29,15 @@ public abstract class ImgReceiver implements Serializable{
 
     public abstract String getTmpImgPath(String imgFilename);
 
-
-
     public abstract String getOutputDir(String imgFilename);
 
-    public boolean generateImg(String imgStr,String path){
+    public abstract String getLogPath();
+
+    public boolean generateImg(String imgStr,String imgFilename){
         if(imgStr==null) return false;
         try{
             byte[] b=Base64.decodeBase64(imgStr);
-            OutputStream out =new FileOutputStream(path);
+            OutputStream out =new FileOutputStream(getTmpImgPath(imgFilename));
             out.write(b);
             out.flush();
             out.close();
@@ -48,49 +48,35 @@ public abstract class ImgReceiver implements Serializable{
         }
     }
 
-    public String ocrProcess(String imgPath){
+    public String ocrProcess(String imgFilename){
         try {
-            String cmd = "tesseract " + imgPath + " stdout";
+            String imgPath=getTmpImgPath(imgFilename);
+            String ocrOutputPath=getOutputDir(imgFilename);
+            String cmd = "tesseract " + imgPath + " "+ocrOutputPath;
             Process process = Runtime.getRuntime().exec(cmd);
-            InputStreamReader ir = new InputStreamReader(process.getInputStream());
-            LineNumberReader input = new LineNumberReader(ir);
-
-            String line;
-            StringBuilder outputStr = new StringBuilder();
-            if ((line = input.readLine()) == null) {
-                outputStr.append(imgPath + ": OCR failed!\n");
-            } else {
-                int lineNum = 0;
-                do {
-                    if (line.equals("")) continue;
-                    lineNum += 1;
-                    outputStr.append(imgPath + ": line-" + lineNum + ": " + line + "\n");
-                } while ((line = input.readLine()) != null);
-            }
-            String output = outputStr.toString();
-            return output;
+            return imgFilename+" ocr result saved in "+ocrOutputPath;
         }catch (Exception e){
             e.printStackTrace();
-            return "OCR ERROR!"+imgPath;
+            return imgFilename+" OCR ERROR!";
         }
     }
 
-    public String ocrProcessAndWriteLocal(String imgFilename, String imgPath,List<Long> tList){
+    public String ocrProcessAndWriteLocal(String imgFilename,List<Long> tList){
         try{
-            String output=ocrProcess(imgPath);
+            String output=ocrProcess(imgFilename);
             long tOcr=System.currentTimeMillis();
             tList.add(tOcr);
             output+="receive in "+(tList.get(1)-tList.get(0))+"ms\n";
             output+="save img in "+(tList.get(2)-tList.get(1))+"ms\n";
             output+="get ocr result in "+(tList.get(3)-tList.get(2))+"ms\n";
-            String outputPath=getOutputDir(imgFilename);
-            File f = new File(outputPath);
+            String logPath=getLogPath();
+            File f = new File(logPath);
             if (!f.exists()) f.createNewFile();
             FileWriter fw = new FileWriter(f, true);
             fw.write(output);
-            long tWrite=System.currentTimeMillis();
-            output+="save result in "+(tWrite-tOcr)+"ms\n";
-            fw.write("save result in "+(tWrite-tOcr)+"ms\n");
+            long tWriteLog=System.currentTimeMillis();
+            output+="write log in "+(tWriteLog-tOcr)+"ms\n";
+            fw.write("write log in "+(tWriteLog-tOcr)+"ms\n");
             fw.flush();
             fw.close();
             return output;
@@ -123,16 +109,15 @@ public abstract class ImgReceiver implements Serializable{
                         String[] keyElem=keyStr.split(" ");
                         String imgFilename = keyElem[0];
                         String tSend=keyElem[1];
-                        String imgPath=getTmpImgPath(imgFilename);
                         String imgStr=tuple2._2();
                         List<Long> timestampList=new ArrayList<>();
                         timestampList.add(Long.parseLong(tSend));
                         long tReceive=System.currentTimeMillis();
                         timestampList.add(tReceive);
-                        generateImg(imgStr,imgPath);
+                        generateImg(imgStr,imgFilename);
                         long tSaveImg=System.currentTimeMillis();
                         timestampList.add(tSaveImg);
-                        return ocrProcessAndWriteLocal(imgFilename,imgPath,timestampList);
+                        return ocrProcessAndWriteLocal(imgFilename,timestampList);
                     }
                 });
 
@@ -140,7 +125,6 @@ public abstract class ImgReceiver implements Serializable{
 
         jssc.start();
         jssc.awaitTermination();
-
     }
 
 

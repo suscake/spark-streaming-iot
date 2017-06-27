@@ -21,6 +21,12 @@ public class ImgReceiverVM extends ImgReceiver {
 
     @Override
     public String getOutputDir(String imgFilename){
-        return "/home/centos/tmp-ocr/output/output.txt";
+        return "/home/centos/tmp-ocr/output/"+imgFilename.substring(0,imgFilename.length()-4)+".txt";
     }
+
+    @Override
+    public String getLogPath(){
+        return "/home/centos/tmp-ocr/log.txt";
+    }
+
 }
