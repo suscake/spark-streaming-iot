@@ -52,12 +52,12 @@ public abstract class ImgReceiver implements Serializable{
         try {
             String imgPath=getTmpImgPath(imgFilename);
             String ocrOutputPath=getOutputDir(imgFilename);
-            String cmd = "tesseract " + imgPath + " "+ocrOutputPath;
+            String cmd = "tesseract " + imgPath + " "+ocrOutputPath.substring(0,ocrOutputPath.length()-4);
             Process process = Runtime.getRuntime().exec(cmd);
-            return imgFilename+" ocr result saved in "+ocrOutputPath;
+            return imgFilename+" ocr result saved in "+ocrOutputPath+"!\n";
         }catch (Exception e){
             e.printStackTrace();
-            return imgFilename+" OCR ERROR!";
+            return imgFilename+" OCR ERROR!\n";
         }
     }
 
