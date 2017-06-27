@@ -75,18 +75,22 @@ public abstract class ImgReceiver implements Serializable{
         }
     }
 
-    public String ocrProcessAndWriteLocal(String imgFilename, String imgPath,String timestamp){
+    public String ocrProcessAndWriteLocal(String imgFilename, String imgPath,List<Long> tList){
         try{
             String output=ocrProcess(imgPath);
-            long t=System.currentTimeMillis();
-            long t0=Long.parseLong(timestamp);
-            long delta=t-t0;
-            output+=imgPath+": finish in "+delta+"ms\n";
+            long tOcr=System.currentTimeMillis();
+            tList.add(tOcr);
+            output+="receive in "+(tList.get(1)-tList.get(0))+"ms\n";
+            output+="save img in "+(tList.get(2)-tList.get(1))+"ms\n";
+            output+="get ocr result in "+(tList.get(3)-tList.get(2))+"ms\n";
             String outputPath=getOutputDir(imgFilename);
             File f = new File(outputPath);
             if (!f.exists()) f.createNewFile();
             FileWriter fw = new FileWriter(f, true);
             fw.write(output);
+            long tWrite=System.currentTimeMillis();
+            output+="save result in "+(tWrite-tOcr)+"ms\n";
+            fw.write("save result in "+(tWrite-tOcr)+"ms\n");
             fw.flush();
             fw.close();
             return output;
@@ -95,6 +99,7 @@ public abstract class ImgReceiver implements Serializable{
             return "OCR ERROR!";
         }
     }
+
 
     public void startReceiver() throws Exception{
         SparkConf sparkConf = new SparkConf().setAppName("OcrStreamingApp")
@@ -117,11 +122,17 @@ public abstract class ImgReceiver implements Serializable{
                         String keyStr=tuple2._1();
                         String[] keyElem=keyStr.split(" ");
                         String imgFilename = keyElem[0];
-                        String timestamp=keyElem[1];
+                        String tSend=keyElem[1];
                         String imgPath=getTmpImgPath(imgFilename);
                         String imgStr=tuple2._2();
+                        List<Long> timestampList=new ArrayList<>();
+                        timestampList.add(Long.parseLong(tSend));
+                        long tReceive=System.currentTimeMillis();
+                        timestampList.add(tReceive);
                         generateImg(imgStr,imgPath);
-                        return ocrProcessAndWriteLocal(imgFilename,imgPath,timestamp);
+                        long tSaveImg=System.currentTimeMillis();
+                        timestampList.add(tSaveImg);
+                        return ocrProcessAndWriteLocal(imgFilename,imgPath,timestampList);
                     }
                 });
 
