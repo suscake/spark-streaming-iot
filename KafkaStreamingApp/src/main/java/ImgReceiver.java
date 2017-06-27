@@ -1,8 +1,12 @@
 import java.io.*;
+
+import kafka.serializer.StringDecoder;
 import org.apache.commons.codec.binary.Base64;
 
 import java.util.*;
 
+import org.apache.spark.streaming.Durations;
+import org.apache.spark.streaming.api.java.JavaPairInputDStream;
 import scala.Tuple2;
 
 import org.apache.spark.SparkConf;
@@ -20,12 +24,19 @@ public abstract class ImgReceiver implements Serializable{
     private String topics;
     private String numThreads;
     public long logTimestamp;
+    private String brokers;
 
     public ImgReceiver(String zkQuorum,String group,String topics,String numThreads){
         this.zkQuorum=zkQuorum;
         this.group=group;
         this.topics=topics;
         this.numThreads=numThreads;
+        this.logTimestamp=System.currentTimeMillis();
+    }
+
+    public ImgReceiver(String brokers,String topics){
+        this.brokers=brokers;
+        this.topics=topics;
         this.logTimestamp=System.currentTimeMillis();
     }
 
@@ -126,6 +137,51 @@ public abstract class ImgReceiver implements Serializable{
         jssc.awaitTermination();
     }
 
+    public void startDirectReceiver() throws Exception{
+        SparkConf sparkConf = new SparkConf().setAppName("OcrStreamingApp")
+                .set("spark.streaming.blockInterval","50");
+        JavaStreamingContext jssc = new JavaStreamingContext(sparkConf, Durations.seconds(1));
+
+        Set<String> topicsSet = new HashSet<>(Arrays.asList(topics.split(",")));
+        Map<String, String> kafkaParams = new HashMap<>();
+        kafkaParams.put("metadata.broker.list", brokers);
+
+        // Create direct kafka stream with brokers and topics
+        JavaPairInputDStream<String, String> messages = KafkaUtils.createDirectStream(
+                jssc,
+                String.class,
+                String.class,
+                StringDecoder.class,
+                StringDecoder.class,
+                kafkaParams,
+                topicsSet
+        );
+
+        JavaDStream<String> ocrOutput = messages.map(
+                new Function<Tuple2<String, String>, String>() {
+                    @Override
+                    public String call(Tuple2<String, String> tuple2) throws Exception {
+                        String keyStr=tuple2._1();
+                        String[] keyElem=keyStr.split(" ");
+                        String imgFilename = keyElem[0];
+                        String tSend=keyElem[1];
+                        String imgStr=tuple2._2();
+                        List<Long> timestampList=new ArrayList<>();
+                        timestampList.add(Long.parseLong(tSend));
+                        long tReceive=System.currentTimeMillis();
+                        timestampList.add(tReceive);
+                        generateImg(imgStr,imgFilename);
+                        long tSaveImg=System.currentTimeMillis();
+                        timestampList.add(tSaveImg);
+                        return ocrProcessAndWriteLocal(imgFilename,timestampList);
+                    }
+                });
+
+        ocrOutput.print();
+
+        jssc.start();
+        jssc.awaitTermination();
+    }
 
 
 }
