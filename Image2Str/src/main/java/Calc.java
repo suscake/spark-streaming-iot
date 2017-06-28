@@ -30,7 +30,7 @@ public class Calc {
             }
         }
 
-        System.out.println("process log from file "+f.getName());
+
         Long min=Long.parseLong(results.get(0));
         Long max=min;
         Long sum=0l;
@@ -44,6 +44,7 @@ public class Calc {
         }
         int total=results.size();
         Long avg=sum/total;
-        System.out.println("Summary: total: "+total+"min: "+min+"ms max: "+max+"ms avg: "+avg+"ms");
+        System.out.println("process log from file "+f.getName());
+        System.out.println("total: "+total+" min: "+min+"ms max: "+max+"ms avg: "+avg+"ms");
     }
 }
