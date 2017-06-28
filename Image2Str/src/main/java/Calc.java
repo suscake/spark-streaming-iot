@@ -7,8 +7,16 @@ public class Calc {
         String pattern="receive in \\d+ms";
         Pattern r=Pattern.compile(pattern);
         Matcher matcher;
-        String logFilename="/home/jiacheng/tmp-ocr/"+args[0];
-        File f=new File(logFilename);
+        String logDir="/home/jiacheng/tmp-ocr";
+        File dir=new File(logDir);
+        File[] flist=dir.listFiles();
+        int lastLog=0;
+        for(int i=0;i<flist.length;i++){
+            if (flist[i].isFile()){
+                lastLog=i;
+            }
+        }
+        File f=flist[lastLog];
         InputStreamReader isr=new InputStreamReader(new FileInputStream(f));
         BufferedReader buf=new BufferedReader(isr);
         String line=null;
@@ -22,6 +30,7 @@ public class Calc {
             }
         }
 
+        System.out.println("process log from file "+f.getName());
         Long min=Long.parseLong(results.get(0));
         Long max=min;
         Long sum=0l;
@@ -33,7 +42,8 @@ public class Calc {
             if(l>max) max=l;
             System.out.println(lat);
         }
-        Long avg=sum/results.size();
-        System.out.println("Summary: min: "+min+"ms max: "+max+"ms avg: "+avg+"ms");
+        int total=results.size();
+        Long avg=sum/total;
+        System.out.println("Summary: total: "+total+"min: "+min+"ms max: "+max+"ms avg: "+avg+"ms");
     }
 }
