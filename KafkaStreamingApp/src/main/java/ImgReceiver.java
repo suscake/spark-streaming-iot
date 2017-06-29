@@ -95,6 +95,7 @@ public abstract class ImgReceiver implements Serializable{
             output+="receive in "+(tList.get(1)-tList.get(0))+"ms\n";
             output+="save img in "+(tList.get(2)-tList.get(1))+"ms\n";
             output+="get ocr result in "+(tList.get(3)-tList.get(2))+"ms\n";
+            output+="timestamp: "+tOcr+"\n";
             String logPath=getLogPath();
             File f = new File(logPath);
             if (!f.exists()) f.createNewFile();
