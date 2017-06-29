@@ -9,7 +9,7 @@ public class Calc {
         String pattern="receive in \\d+ms";
         Pattern r=Pattern.compile(pattern);
         Matcher matcher;
-        String pattern2="timestamp: \\d";
+        String pattern2="timestamp: \\d+";
         Pattern r2=Pattern.compile(pattern2);
         Matcher matcher2;
         String logDir="/home/jiacheng/tmp-ocr";
@@ -59,7 +59,6 @@ public class Calc {
             Long lTime=Long.parseLong(times.get(i));
             if(lTime<minTime) minTime=lTime;
             if(lTime>maxTime) maxTime=lTime;
-            System.out.println(lTime);
         }
         Long avg=sum/total;
         Long totalTime=(maxTime-minTime);
@@ -67,7 +66,7 @@ public class Calc {
         System.out.println("process log from file "+f.getName());
         System.out.println("delay min="+min+"ms max="+max+"ms avg="+avg+"ms");
         System.out.println("complete "+total+" imgs in "+totalTime+"ms");
-        System.out.printf("throughput=%.2fimg/s",throughput);
+        System.out.printf("throughput=%.2fimg/s\n",throughput);
 
         isr.close();
     }
