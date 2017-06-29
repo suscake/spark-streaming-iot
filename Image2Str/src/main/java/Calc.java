@@ -38,30 +38,30 @@ public class Calc {
             if(matcher2.find()){
                 String matchedLine=matcher2.group(0);
                 String timestamp=matchedLine.substring(11);
-
                 times.add(timestamp);
             }
         }
 
 
-        Long min=Long.parseLong(results.get(0));
-        Long max=min;
-        Long sum=0l;
-        Long minTime=Long.parseLong(times.get(0));
-        Long maxTime=minTime;
+        long min=Long.parseLong(results.get(0));
+        long max=min;
+        long sum=0l;
+        long minTime=Long.parseLong(times.get(0));
+        long maxTime=minTime;
+        long veryBeginning=minTime-min;
         int total=results.size();
         for(int i=0;i<total;i++){
-            String lat=results.get(i);
-            Long l=Long.parseLong(lat);
+            long l=Long.parseLong(results.get(i));
             sum+=l;
             if(l<min) min=l;
             if(l>max) max=l;
-            Long lTime=Long.parseLong(times.get(i));
-            if(lTime<minTime) minTime=lTime;
+            long lTime=Long.parseLong(times.get(i));
             if(lTime>maxTime) maxTime=lTime;
+            long beginTime=lTime-l;
+            if(beginTime<veryBeginning) veryBeginning=beginTime;
         }
-        Long avg=sum/total;
-        Long totalTime=(maxTime-minTime);
+        long avg=sum/total;
+        long totalTime=(maxTime-veryBeginning);
         double throughput=(double)total/totalTime*1000.0;
         System.out.println("process log from file "+f.getName());
         System.out.println("delay min="+min+"ms max="+max+"ms avg="+avg+"ms");
