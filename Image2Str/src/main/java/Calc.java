@@ -6,7 +6,7 @@ import java.util.regex.*;
 
 public class Calc {
     public static void main(String[] args) throws IOException{
-        String pattern="receive in \\d+ms";
+        String pattern="complete in \\d+ms";
         Pattern r=Pattern.compile(pattern);
         Matcher matcher;
         String pattern2="timestamp: \\d+";
@@ -31,7 +31,7 @@ public class Calc {
             matcher=r.matcher(line);
             if(matcher.find()) {
                 String matchedLine = matcher.group(0);
-                String latency=matchedLine.substring(11,matchedLine.length()-2);
+                String latency=matchedLine.substring(12,matchedLine.length()-2);
                 results.add(latency);
             }
             matcher2=r2.matcher(line);
