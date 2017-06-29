@@ -56,8 +56,8 @@ public class Calc {
             if(l<min) min=l;
             if(l>max) max=l;
             Long lTime=Long.parseLong(times.get(i));
-            if(lTime<minTime) min=lTime;
-            if(lTime>maxTime) max=lTime;
+            if(lTime<minTime) minTime=lTime;
+            if(lTime>maxTime) maxTime=lTime;
         }
         Long avg=sum/total;
         Long totalTime=(maxTime-minTime);
