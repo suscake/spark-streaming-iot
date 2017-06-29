@@ -38,6 +38,7 @@ public class Calc {
             if(matcher2.find()){
                 String matchedLine=matcher2.group(0);
                 String timestamp=matchedLine.substring(11);
+
                 times.add(timestamp);
             }
         }
@@ -58,6 +59,7 @@ public class Calc {
             Long lTime=Long.parseLong(times.get(i));
             if(lTime<minTime) minTime=lTime;
             if(lTime>maxTime) maxTime=lTime;
+            System.out.println(lTime);
         }
         Long avg=sum/total;
         Long totalTime=(maxTime-minTime);
